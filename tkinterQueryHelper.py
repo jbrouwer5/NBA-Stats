@@ -18,9 +18,8 @@ def get_players():
     cursor.execute("SELECT Player_Name FROM Players")
     players = [row[0] for row in cursor.fetchall()]
     myConnection.close()
-
-    mock_players = ["Lebron", "Luka", "Anthony Edwards"]
-    return mock_players
+    
+    return players
 
 
 # Function to fetch player stats
@@ -30,22 +29,21 @@ def get_player_stats(player_name, season_year):
     cursor = myConnection.cursor()
     
     # Get Player_ID
-    # cursor.execute("SELECT Player_ID FROM Players WHERE Player_Name = %s", (player_name,))
-    # player_id = cursor.fetchone()[0]
-
-    # Get Season_ID
-    # cursor.execute("SELECT Season_ID FROM Season WHERE YEAR(Season_Start) = %s", (season_year,))
-    # season_id = cursor.fetchone()[0]
-    
-    # Get Player Stats
-    # cursor.execute("""
-    #     SELECT Games_Played, Field_Goals_2PT, Field_Goals_3PT, Free_Throws, Rebounds, Assists
-    #     FROM PlayerSeasonStats
-    #     WHERE Player_ID = %s AND Season_ID = %s
-    # """, (player_id, season_id))
-    # stats = cursor.fetchone()
+    cursor.execute("SELECT Player_ID FROM Players WHERE Player_Name = %s", (player_name,))
+    player_id = cursor.fetchone()[0]
+    print(player_id)
+    # Assuming the Season table has a column to identify the start year of the season
+    cursor.execute("SELECT Season_ID FROM Season WHERE Season_ID = %s", (season_year,))
+    season_id = cursor.fetchone()[0]
+    print(season_id)
+    # Get Player Stats from PlayedSeasonWith table
+    cursor.execute("""
+        SELECT Games_Played, Points, Rebounds, Assists, Steals, Blocks
+        FROM PlayedSeasonWith
+        WHERE Player_ID = %s AND Season_ID = %s
+    """, (player_id, season_id))
+    stats = cursor.fetchone()
     
     myConnection.close()
 
-    mock_stats = [5, 10, 10, 10, 10, 10]
-    return mock_stats
+    return stats
