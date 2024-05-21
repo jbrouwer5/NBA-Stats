@@ -75,7 +75,7 @@ def get_teams():
     myConnection = get_connection()
     cursor = myConnection.cursor()
 
-    cursor.execute("SELECT Team_Name FROM Team")
+    cursor.execute("SELECT Team_Name FROM Team") 
     teams = [row[0] for row in cursor.fetchall()]
     myConnection.close()
 
@@ -102,14 +102,16 @@ def get_team_stats(team_name, season_year):
                 WHEN g.Home_Team_ID = %s THEN g.Home_Points
                 ELSE g.Away_Points
             END) AS Total_Points,
+            ROUND(
             AVG(CASE 
                 WHEN g.Home_Team_ID = %s THEN g.Home_Points
                 ELSE g.Away_Points
-            END) AS Points_Per_Game,
+            END), 2) AS Points_Per_Game, 
+            ROUND(
             AVG(CASE 
                 WHEN g.Home_Team_ID = %s THEN g.Away_Points
                 ELSE g.Home_Points
-            END) AS Points_Allowed_Per_Game,
+            END), 2) AS Points_Allowed_Per_Game,
             SUM(CASE 
                 WHEN (g.Home_Team_ID = %s AND g.Home_Win = TRUE) OR (g.Away_Team_ID = %s AND g.Home_Win = FALSE) THEN 1
                 ELSE 0

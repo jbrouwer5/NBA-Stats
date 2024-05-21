@@ -12,7 +12,7 @@ NBA_BLACK = '#000000'
 # Create the main application window
 root = tk.Tk()
 root.title('NBA Stats App')
-root.geometry('1600x1200')
+root.geometry('1200x800')
 root.configure(bg=NBA_BLUE)
 
 # Create a container for the different frames
@@ -74,11 +74,11 @@ class PlayerStatsFrame(tk.Frame):
             if stats:
                 self.results.delete('1.0', tk.END)
                 self.results.insert(tk.END, f'Games Played: {stats[0]}\n')
-                self.results.insert(tk.END, f'Field Goals 2PT: {stats[1]}\n')
-                self.results.insert(tk.END, f'Field Goals 3PT: {stats[2]}\n')
-                self.results.insert(tk.END, f'Free Throws: {stats[3]}\n')
-                self.results.insert(tk.END, f'Rebounds: {stats[4]}\n')
-                self.results.insert(tk.END, f'Assists: {stats[5]}\n')
+                self.results.insert(tk.END, f'Points: {stats[1]}\n')
+                self.results.insert(tk.END, f'Rebounds: {stats[2]}\n')
+                self.results.insert(tk.END, f'Assists: {stats[3]}\n')
+                self.results.insert(tk.END, f'Steals: {stats[4]}\n')
+                self.results.insert(tk.END, f'Blocks: {stats[5]}\n')
             else:
                 self.results.delete('1.0', tk.END)
                 self.results.insert(tk.END, 'No stats available for this player and season.')
@@ -158,8 +158,8 @@ class TeamStatsFrame(tk.Frame):
                 self.results.delete('1.0', tk.END)
                 self.results.insert(tk.END, f'Games Played: {stats[0]}\n')
                 self.results.insert(tk.END, f'Total Points: {stats[1]}\n')
-                self.results.insert(tk.END, f'Points Scored PG: {stats[2]}\n')
-                self.results.insert(tk.END, f'Points Allowed PG: {stats[3]}\n')
+                self.results.insert(tk.END, f'Points Scored Per Game: {stats[2]}\n')
+                self.results.insert(tk.END, f'Points Allowed Per Game: {stats[3]}\n')
                 self.results.insert(tk.END, f'Wins: {stats[4]}\n')
                 self.results.insert(tk.END, f'Losses: {stats[5]}\n')
             else:
