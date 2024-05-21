@@ -31,33 +31,40 @@ def show_frame(frame_name):
     frame = frames[frame_name]
     frame.tkraise()
 
+seasons = [str(2023-i) for i in range(2023-1945)] 
 # Define the Intro Frame
 class IntroFrame(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg=NBA_BLACK)
-        tk.Label(self, text='Welcome to the NBA Stats App!', font=('Helvetica', 24), fg=NBA_WHITE, bg=NBA_RED).pack(pady=20)
-        tk.Button(self, text='Player Stats', font=('Helvetica', 16), command=lambda: show_frame('PlayerStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
-        tk.Button(self, text='Team Stats', font=('Helvetica', 16), command=lambda: show_frame('TeamStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
-        tk.Button(self, text='Top Scorers', font=('Helvetica', 16), command=lambda: show_frame('TopScorersFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
-        tk.Button(self, text='Teams Played For', font=('Helvetica', 16), command=lambda: show_frame('TeamsPlayedForFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
-        tk.Button(self, text='Player Career Stats', font=('Helvetica', 16), command=lambda: show_frame('PlayerCareerStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
+        header_width = 40
+        header_height = 3
+        button_width = 30
+        button_height = 3
+        header_font_size = 36
+        button_font_size = 24
+        tk.Label(self, text='Welcome to the NBA Stats App!', font=('Helvetica', header_font_size), fg=NBA_WHITE, bg=NBA_RED, width=header_width, height=header_height).pack(pady=20)
+        tk.Button(self, text='Player Season Stats', font=('Helvetica', button_font_size), command=lambda: show_frame('PlayerStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
+        tk.Button(self, text='Team Season Stats', font=('Helvetica', button_font_size), command=lambda: show_frame('TeamStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
+        tk.Button(self, text='Top Season Scorers', font=('Helvetica', button_font_size), command=lambda: show_frame('TopScorersFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
+        tk.Button(self, text='Teams Played For', font=('Helvetica', button_font_size), command=lambda: show_frame('TeamsPlayedForFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
+        tk.Button(self, text='Player Career Stats', font=('Helvetica', button_font_size), command=lambda: show_frame('PlayerCareerStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
 
 # Define the Player Stats Frame with autocomplete combobox
 class PlayerStatsFrame(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg=NBA_BLUE)
-        tk.Label(self, text='Player Stats', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
+        tk.Label(self, text='Player Season Stats', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
         
-        ttk.Label(self, text='Select Player:', background=NBA_BLUE, foreground=NBA_WHITE).pack()
+        ttk.Label(self, text='Select Player:', background=NBA_WHITE, foreground=NBA_BLUE).pack()
         self.player_combo = AutocompleteCombobox(self)
         self.player_combo.pack()
         
-        ttk.Label(self, text='Select Season:', background=NBA_BLUE, foreground=NBA_WHITE).pack()
-        self.season_combo = ttk.Combobox(self, values=['2023', '2022', '2021', '2020', '2019', '2018'])
+        ttk.Label(self, text='Select Season:', background=NBA_WHITE, foreground=NBA_BLUE).pack()
+        self.season_combo = ttk.Combobox(self, values=seasons)
         self.season_combo.pack()
         
-        tk.Button(self, text='Show Stats', command=self.show_stats, bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
-        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
+        tk.Button(self, text='Show Stats', command=self.show_stats, bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
+        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
         
         self.results = Text(self, height=10, width=60)
         self.results.pack(pady=10)
@@ -95,12 +102,12 @@ class PlayerCareerStatsFrame(tk.Frame):
         tk.Frame.__init__(self, parent, bg=NBA_BLUE)
         tk.Label(self, text='Player Career Stats', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
         
-        ttk.Label(self, text='Select Player:', background=NBA_BLUE, foreground=NBA_WHITE).pack()
+        ttk.Label(self, text='Select Player:', background=NBA_WHITE, foreground=NBA_BLUE).pack()
         self.player_combo = AutocompleteCombobox(self)
         self.player_combo.pack()
         
-        tk.Button(self, text='Show Career Stats', command=self.show_career_stats, bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
-        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
+        tk.Button(self, text='Show Career Stats', command=self.show_career_stats, bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
+        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
         
         self.results = ScrolledText(self, height=10, width=60)
         self.results.pack(pady=10)
@@ -176,18 +183,18 @@ class AutocompleteCombobox(ttk.Combobox):
 class TeamStatsFrame(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg=NBA_BLUE)
-        tk.Label(self, text='Team Stats', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
+        tk.Label(self, text='Team Season Stats', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
         
-        ttk.Label(self, text='Select Team:', background=NBA_BLUE, foreground=NBA_WHITE).pack()
+        ttk.Label(self, text='Select Team:', background=NBA_WHITE, foreground=NBA_BLUE).pack()
         self.team_combo = AutocompleteCombobox(self)
         self.team_combo.pack()
         
-        ttk.Label(self, text='Select Season:', background=NBA_BLUE, foreground=NBA_WHITE).pack()
-        self.season_combo = ttk.Combobox(self, values=['2023', '2022', '2021', '2020', '2019', '2018'])
+        ttk.Label(self, text='Select Season:', background=NBA_WHITE, foreground=NBA_BLUE).pack()
+        self.season_combo = ttk.Combobox(self, values=seasons)
         self.season_combo.pack()
         
-        tk.Button(self, text='Show Stats', command=self.show_stats, bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
-        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
+        tk.Button(self, text='Show Stats', command=self.show_stats, bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
+        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
         
         self.results = Text(self, height=10, width=60)
         self.results.pack(pady=10)
@@ -221,18 +228,18 @@ class TeamStatsFrame(tk.Frame):
 class TopScorersFrame(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg=NBA_BLUE)
-        tk.Label(self, text='Top Scorers', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
+        tk.Label(self, text='Top Season Scorers', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
         
-        ttk.Label(self, text='Select Season:', background=NBA_BLUE, foreground=NBA_WHITE).pack()
-        self.season_combo = ttk.Combobox(self, values=['2023', '2022', '2021', '2020', '2019', '2018'])
+        ttk.Label(self, text='Select Season:', background=NBA_WHITE, foreground=NBA_BLUE).pack()
+        self.season_combo = ttk.Combobox(self, values=seasons)
         self.season_combo.pack()
         
-        ttk.Label(self, text='Number of Top Scorers:', background=NBA_BLUE, foreground=NBA_WHITE).pack()
+        ttk.Label(self, text='Number of Top Scorers:', background=NBA_WHITE, foreground=NBA_BLUE).pack()
         self.num_top_scorers = ttk.Spinbox(self, from_=1, to=100)
         self.num_top_scorers.pack()
         
-        tk.Button(self, text='Show Top Scorers', command=self.show_top_scorers, bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
-        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
+        tk.Button(self, text='Show Top Scorers', command=self.show_top_scorers, bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
+        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
         
         self.results = Text(self, height=10, width=60)
         self.results.pack(pady=10)
@@ -265,12 +272,12 @@ class TeamsPlayedForFrame(tk.Frame):
         tk.Frame.__init__(self, parent, bg=NBA_BLUE)
         tk.Label(self, text='Teams Played For', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
         
-        ttk.Label(self, text='Select Player:', background=NBA_BLUE, foreground=NBA_WHITE).pack()
+        ttk.Label(self, text='Select Player:', background=NBA_WHITE, foreground=NBA_BLUE).pack()
         self.player_combo = AutocompleteCombobox(self)
         self.player_combo.pack()
         
-        tk.Button(self, text='Show Teams', command=self.show_teams, bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
-        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
+        tk.Button(self, text='Show Teams', command=self.show_teams, bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
+        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
         
         self.results = Text(self, height=10, width=60)
         self.results.pack(pady=10)

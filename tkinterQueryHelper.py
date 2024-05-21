@@ -92,31 +92,6 @@ def get_player_stats(player_name, season_year):
     stats = cursor.fetchone()
     
     myConnection.close()
-
-    return stats
-
-# Function to fetch player stats
-def get_player_stats(player_name, season_year):
-    myConnection = get_connection()
-    cursor = myConnection.cursor()
-    
-    # Get Player_ID
-    cursor.execute("SELECT Player_ID FROM Players WHERE Player_Name = %s", (player_name,))
-    player_id = cursor.fetchone()[0]
-    
-    # Assuming the Season table has a column to identify the start year of the season
-    cursor.execute("SELECT Season_ID FROM Season WHERE Season_ID = %s", (season_year,))
-    season_id = cursor.fetchone()[0]
-    
-    # Get Player Stats from PlayedSeasonWith table
-    cursor.execute("""
-        SELECT Games_Played, Points, Rebounds, Assists, Steals, Blocks
-        FROM PlayedSeasonWith
-        WHERE Player_ID = %s AND Season_ID = %s
-    """, (player_id, season_id))
-    stats = cursor.fetchone()
-    
-    myConnection.close()
     
     if stats is None: 
         return stats 
