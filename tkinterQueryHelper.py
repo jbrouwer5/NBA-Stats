@@ -20,6 +20,31 @@ def get_players():
     
     return players
 
+# Function to fetch the teams a player has played for along with the years
+def get_player_teams(player_name):
+    myConnection = get_connection()
+    cursor = myConnection.cursor()
+
+    # Get Player_ID
+    cursor.execute("SELECT Player_ID FROM Players WHERE Player_Name = %s", (player_name,))
+    player_id = cursor.fetchone()[0]
+    
+    # Fetch teams and seasons
+    cursor.execute("""
+        SELECT t.Team_Name, s.Season_ID
+        FROM PlayedSeasonWith psw
+        JOIN Team t ON psw.Team_ID = t.Team_ID
+        JOIN Season s ON psw.Season_ID = s.Season_ID
+        WHERE psw.Player_ID = %s
+        ORDER BY s.Season_ID
+    """, (player_id,))
+    
+    player_teams = cursor.fetchall()
+    
+    myConnection.close()
+
+    return player_teams
+
 # Function to fetch top scorers by points per game
 def get_top_scorers(number_players, season_year):
     myConnection = get_connection()

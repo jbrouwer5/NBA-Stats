@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, Text
-from tkinterQueryHelper import get_players, get_player_stats, get_teams, get_team_stats, get_top_scorers
+from tkinterQueryHelper import get_players, get_player_stats, get_teams, get_team_stats, get_top_scorers, get_player_teams
 
 # Define the NBA colors
 NBA_BLUE = '#17408B'
@@ -38,6 +38,7 @@ class IntroFrame(tk.Frame):
         tk.Button(self, text='Player Stats', font=('Helvetica', 16), command=lambda: show_frame('PlayerStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
         tk.Button(self, text='Team Stats', font=('Helvetica', 16), command=lambda: show_frame('TeamStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
         tk.Button(self, text='Top Scorers', font=('Helvetica', 16), command=lambda: show_frame('TopScorersFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
+        tk.Button(self, text='Teams Played For', font=('Helvetica', 16), command=lambda: show_frame('TeamsPlayedForFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
 
 # Define the Player Stats Frame with autocomplete combobox
 class PlayerStatsFrame(tk.Frame):
@@ -211,8 +212,46 @@ class TopScorersFrame(tk.Frame):
             self.results.delete('1.0', tk.END)
             self.results.insert(tk.END, 'Please select a season and enter the number of top scorers.')
 
+# Define the Teams Played For Frame
+class TeamsPlayedForFrame(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg=NBA_BLUE)
+        tk.Label(self, text='Teams Played For', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
+        
+        ttk.Label(self, text='Select Player:', background=NBA_BLUE, foreground=NBA_WHITE).pack()
+        self.player_combo = AutocompleteCombobox(self)
+        self.player_combo.pack()
+        
+        tk.Button(self, text='Show Teams', command=self.show_teams, bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
+        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
+        
+        self.results = Text(self, height=10, width=60)
+        self.results.pack(pady=10)
+        
+        self.populate_players()
+
+    def populate_players(self):
+        players = get_players()
+        self.player_combo.set_completion_list(players)
+
+    def show_teams(self):
+        player_name = self.player_combo.get()
+        
+        if player_name:
+            teams = get_player_teams(player_name)
+            if teams:
+                self.results.delete('1.0', tk.END)
+                for team in teams:
+                    self.results.insert(tk.END, f'{team[0]}: {team[1]}\n')
+            else:
+                self.results.delete('1.0', tk.END)
+                self.results.insert(tk.END, 'No teams found for this player.')
+        else:
+            self.results.delete('1.0', tk.END)
+            self.results.insert(tk.END, 'Please select a player.')
+
 # Add the frames to the container
-for F in (IntroFrame, PlayerStatsFrame, TeamStatsFrame, TopScorersFrame):
+for F in (IntroFrame, PlayerStatsFrame, TeamStatsFrame, TopScorersFrame, TeamsPlayedForFrame):
     frame = F(container)
     frames[F.__name__] = frame
     frame.grid(row=0, column=0, sticky='nsew')
