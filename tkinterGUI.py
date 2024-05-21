@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, Text
-from tkinterQueryHelper import get_players, get_player_stats
+from tkinterQueryHelper import get_players, get_player_stats, get_teams, get_team_stats
 
 # Define the NBA colors
 NBA_BLUE = '#17408B'
@@ -8,7 +8,6 @@ NBA_RED = '#E03A3E'
 NBA_GRAY = '#8A8D8F'
 NBA_WHITE = '#FFFFFF'
 NBA_BLACK = '#000000'
-
 
 # Create the main application window
 root = tk.Tk()
@@ -37,9 +36,8 @@ class IntroFrame(tk.Frame):
         tk.Frame.__init__(self, parent, bg=NBA_BLACK)
         tk.Label(self, text='Welcome to the NBA Stats App!', font=('Helvetica', 24), fg=NBA_WHITE, bg=NBA_RED).pack(pady=20)
         tk.Button(self, text='Player Stats', font=('Helvetica', 16), command=lambda: show_frame('PlayerStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
-        tk.Button(self, text='Coach Stats', font=('Helvetica', 16), command=lambda: show_frame('CoachStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
         tk.Button(self, text='Team Stats', font=('Helvetica', 16), command=lambda: show_frame('TeamStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
-        tk.Button(self, text='Arena Stats', font=('Helvetica', 16), command=lambda: show_frame('ArenaStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
+        # Add more buttons for other frames if needed
 
 # Define the Player Stats Frame with autocomplete combobox
 class PlayerStatsFrame(tk.Frame):
@@ -124,8 +122,55 @@ class AutocompleteCombobox(ttk.Combobox):
         
         self.autocomplete()
 
+# Define the Team Stats Frame with autocomplete combobox
+class TeamStatsFrame(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg=NBA_BLUE)
+        tk.Label(self, text='Team Stats', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
+        
+        ttk.Label(self, text='Select Team:', background=NBA_BLUE, foreground=NBA_WHITE).pack()
+        self.team_combo = AutocompleteCombobox(self)
+        self.team_combo.pack()
+        
+        ttk.Label(self, text='Select Season:', background=NBA_BLUE, foreground=NBA_WHITE).pack()
+        self.season_combo = ttk.Combobox(self, values=['2023', '2022', '2021', '2020', '2019', '2018'])
+        self.season_combo.pack()
+        
+        tk.Button(self, text='Show Stats', command=self.show_stats, bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
+        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
+        
+        self.results = Text(self, height=10, width=60)
+        self.results.pack(pady=10)
+        
+        self.populate_teams()
+
+    def populate_teams(self):
+        teams = get_teams()
+        self.team_combo.set_completion_list(teams)
+
+    def show_stats(self):
+        team_name = self.team_combo.get()
+        season_year = self.season_combo.get()
+        
+        if team_name and season_year:
+            stats = get_team_stats(team_name, season_year)
+            if stats:
+                self.results.delete('1.0', tk.END)
+                self.results.insert(tk.END, f'Games Played: {stats[0]}\n')
+                self.results.insert(tk.END, f'Total Points: {stats[1]}\n')
+                self.results.insert(tk.END, f'Points Scored PG: {stats[2]}\n')
+                self.results.insert(tk.END, f'Points Allowed PG: {stats[3]}\n')
+                self.results.insert(tk.END, f'Wins: {stats[4]}\n')
+                self.results.insert(tk.END, f'Losses: {stats[5]}\n')
+            else:
+                self.results.delete('1.0', tk.END)
+                self.results.insert(tk.END, 'No stats available for this team and season.')
+        else:
+            self.results.delete('1.0', tk.END)
+            self.results.insert(tk.END, 'Please select both a team and a season.')
+
 # Add the frames to the container
-for F in (IntroFrame, PlayerStatsFrame):
+for F in (IntroFrame, PlayerStatsFrame, TeamStatsFrame):
     frame = F(container)
     frames[F.__name__] = frame
     frame.grid(row=0, column=0, sticky='nsew')
