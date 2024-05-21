@@ -1,7 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, Text
 from tkinter.scrolledtext import ScrolledText
-from tkinterQueryHelper import get_players, get_player_stats, get_teams, get_team_stats, get_top_scorers, get_player_teams, get_player_career_stats
+from tkinterQueryHelper import get_players, get_player_stats, get_teams, get_team_stats, \
+                                get_top_scorers, get_player_teams, get_player_career_stats, \
+                                    get_champion_data, get_all_time_scorers, get_biased_refs, \
+                                    get_top_champions, get_winningest_arenas
 
 # Define the NBA colors
 NBA_BLUE = '#17408B'
@@ -13,7 +16,7 @@ NBA_BLACK = '#000000'
 # Create the main application window
 root = tk.Tk()
 root.title('NBA Stats App')
-root.geometry('1200x800')
+root.geometry('1000x1200')
 root.configure(bg=NBA_BLUE)
 
 # Create a container for the different frames
@@ -38,16 +41,31 @@ class IntroFrame(tk.Frame):
         tk.Frame.__init__(self, parent, bg=NBA_BLACK)
         header_width = 40
         header_height = 3
+        subtitle_width = 40
+        subtitle_height = 2
         button_width = 30
         button_height = 3
-        header_font_size = 36
-        button_font_size = 24
-        tk.Label(self, text='Welcome to the NBA Stats App!', font=('Helvetica', header_font_size), fg=NBA_WHITE, bg=NBA_RED, width=header_width, height=header_height).pack(pady=20)
+        header_font_size = 24
+        subtitle_font_size = 18
+        button_font_size = 18
+        
+        # Main title
+        tk.Label(self, text='Welcome to the NBA Stats App!', font=('Helvetica', header_font_size), fg=NBA_WHITE, bg=NBA_RED, width=header_width, height=header_height).pack(pady=10)
+        
+        # Subtitle
+        tk.Label(self, text='Providing statistics on everything NBA', font=('Helvetica', subtitle_font_size), fg=NBA_WHITE, bg=NBA_BLACK, width=subtitle_width, height=subtitle_height).pack(pady=10)
+        
+        # Buttons
         tk.Button(self, text='Player Season Stats', font=('Helvetica', button_font_size), command=lambda: show_frame('PlayerStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
         tk.Button(self, text='Team Season Stats', font=('Helvetica', button_font_size), command=lambda: show_frame('TeamStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
         tk.Button(self, text='Top Season Scorers', font=('Helvetica', button_font_size), command=lambda: show_frame('TopScorersFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
         tk.Button(self, text='Teams Played For', font=('Helvetica', button_font_size), command=lambda: show_frame('TeamsPlayedForFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
         tk.Button(self, text='Player Career Stats', font=('Helvetica', button_font_size), command=lambda: show_frame('PlayerCareerStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
+        tk.Button(self, text='Champion Statistics', font=('Helvetica', button_font_size), command=lambda: show_frame('ChampionStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
+        tk.Button(self, text='All Time Scorers', font=('Helvetica', button_font_size), command=lambda: show_frame('AllTimeScorersFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
+        tk.Button(self, text='Most Biased Refs', font=('Helvetica', button_font_size), command=lambda: show_frame('BiasedRefsFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
+        tk.Button(self, text='Top Champion Scorers', font=('Helvetica', button_font_size), command=lambda: show_frame('TopChampionFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
+        tk.Button(self, text='Top Arenas', font=('Helvetica', button_font_size), command=lambda: show_frame('TopArenasFrame'), bg=NBA_BLACK, fg=NBA_BLUE, width=button_width, height=button_height).pack(pady=10)
 
 # Define the Player Stats Frame with autocomplete combobox
 class PlayerStatsFrame(tk.Frame):
@@ -109,7 +127,7 @@ class PlayerCareerStatsFrame(tk.Frame):
         tk.Button(self, text='Show Career Stats', command=self.show_career_stats, bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
         tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
         
-        self.results = ScrolledText(self, height=10, width=60)
+        self.results = ScrolledText(self, height=12, width=60)
         self.results.pack(pady=10)
         
         self.populate_players()
@@ -304,11 +322,133 @@ class TeamsPlayedForFrame(tk.Frame):
             self.results.delete('1.0', tk.END)
             self.results.insert(tk.END, 'Please select a player.')
 
+# Define the Team Statistics Frame
+class ChampionStatsFrame(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg=NBA_BLUE)
+        tk.Label(self, text='Champion History', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
+        
+        # tk.Button(self, text='Show Statistics', command=self.show_statistics, bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
+        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
+        
+        self.results = Text(self, height=50, width=60)
+        self.results.pack(pady=10)
+        
+        self.show_statistics()  # Automatically show statistics on load
+
+    def show_statistics(self):
+        team_stats = get_champion_data()
+        
+        self.results.delete('1.0', tk.END)
+        if team_stats:
+            for team in team_stats:
+                self.results.insert(tk.END, f'{team[0]}: {team[1]} Points\n')
+        else:
+            self.results.insert(tk.END, 'No team statistics available.')
+
+# Define the Team Statistics Frame
+class AllTimeScorersFrame(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg=NBA_BLUE)
+        tk.Label(self, text='All Time Scorers', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
+        
+        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
+        
+        self.results = Text(self, height=10, width=60)
+        self.results.pack(pady=10)
+        
+        self.show_statistics()  # Automatically show statistics on load
+
+    def show_statistics(self):
+        team_stats = get_all_time_scorers()
+        
+        self.results.delete('1.0', tk.END)
+        if team_stats:
+            for team in team_stats:
+                self.results.insert(tk.END, f'{team[0]}: {team[1]} Points\n')
+        else:
+            self.results.insert(tk.END, 'No team statistics available.')
+
+# Define the Team Statistics Frame
+class BiasedRefsFrame(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg=NBA_BLUE)
+        tk.Label(self, text='Most Biased Refs', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
+        
+        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
+        
+        self.results = Text(self, height=50, width=60)
+        self.results.pack(pady=10)
+        
+        self.show_statistics()  # Automatically show statistics on load
+
+    def show_statistics(self):
+        stats = get_biased_refs()
+        
+        self.results.delete('1.0', tk.END)
+        if stats:
+            for stat in stats:
+                self.results.insert(tk.END, f'Name: {stat[0]}\n')
+                self.results.insert(tk.END, f'Total Games Officiated: {stat[2]}\n')
+                self.results.insert(tk.END, f'Wins Officated: {stat[1]}\n')
+                self.results.insert(tk.END, f'Home Win Percentage: {stat[3]}\n\n')
+        else:
+            self.results.insert(tk.END, 'No ref statistics available.')
+
+# Define the Team Statistics Frame
+class TopChampionFrame(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg=NBA_BLUE)
+        tk.Label(self, text='Top Champion Scorers', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
+        
+        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
+        
+        self.results = Text(self, height=50, width=60)
+        self.results.pack(pady=10)
+        
+        self.show_statistics()  # Automatically show statistics on load
+
+    def show_statistics(self):
+        stats = get_top_champions()
+        
+        self.results.delete('1.0', tk.END)
+        if stats:
+            for stat in stats:
+                self.results.insert(tk.END, f'{stat[0]} {stat[1]}: {stat[2]}, {stat[3]} Points\n')
+        else:
+            self.results.insert(tk.END, 'No team statistics available.')
+
+# Define the Team Statistics Frame
+class TopArenasFrame(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg=NBA_BLUE)
+        tk.Label(self, text='Most Winning Arenas', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
+        
+        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_WHITE, fg=NBA_BLUE).pack(pady=10)
+        
+        self.results = Text(self, height=30, width=80)
+        self.results.pack(pady=10)
+        
+        self.show_statistics()  # Automatically show statistics on load
+
+    def show_statistics(self):
+        stats = get_winningest_arenas()
+        
+        self.results.delete('1.0', tk.END)
+        if stats:
+            for stat in stats:
+                self.results.insert(tk.END, f'{stat[0]}: Games - {stat[3]}, Wins - {stat[2]}, Win Percentage - {round(stat[2] / stat[3],2)}\n')
+        else:
+            self.results.insert(tk.END, 'No team statistics available.')
+
 # Add the frames to the container
-for F in (IntroFrame, PlayerStatsFrame, TeamStatsFrame, TopScorersFrame, TeamsPlayedForFrame, PlayerCareerStatsFrame):
+for F in (IntroFrame, PlayerStatsFrame, TeamStatsFrame, TopScorersFrame, TeamsPlayedForFrame,
+ PlayerCareerStatsFrame, ChampionStatsFrame, AllTimeScorersFrame, BiasedRefsFrame, 
+ TopChampionFrame, TopArenasFrame):
     frame = F(container)
     frames[F.__name__] = frame
     frame.grid(row=0, column=0, sticky='nsew')
+
 
 # Configure each frame to expand with the container
 for frame in frames.values():

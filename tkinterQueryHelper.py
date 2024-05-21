@@ -203,3 +203,150 @@ def get_player_career_stats(player_name):
     myConnection.close()
     
     return career_stats
+
+def get_champion_data():
+
+    myConnection = get_connection()
+    cursor = myConnection.cursor()
+
+    # Get Player_ID
+    cursor.execute("""SELECT 
+                    t.Team_Name,
+                    s.Season_ID,
+                    COUNT(g.Game_ID) AS Games_Played,
+                    SUM(CASE WHEN g.Home_Team_ID = s.Winner_ID THEN g.Home_Points ELSE g.Away_Points END) AS Points_Scored,
+                    SUM(CASE WHEN g.Home_Team_ID = s.Winner_ID THEN g.Away_Points ELSE g.Home_Points END) AS Points_Allowed,
+                    SUM(CASE WHEN g.Home_Team_ID = s.Winner_ID AND g.Home_Win = 1 THEN 1
+                            WHEN g.Away_Team_ID = s.Winner_ID AND g.Home_Win = 0 THEN 1 ELSE 0 END) AS Wins,
+                    SUM(CASE WHEN g.Home_Team_ID = s.Winner_ID AND g.Home_Win = 0 THEN 1
+                            WHEN g.Away_Team_ID = s.Winner_ID AND g.Home_Win = 1 THEN 1 ELSE 0 END) AS Losses
+                FROM 
+                    Season s
+                JOIN 
+                    Team t ON s.Winner_ID = t.Team_ID
+                JOIN 
+                    Games g ON (g.Home_Team_ID = s.Winner_ID OR g.Away_Team_ID = s.Winner_ID) AND YEAR(g.Game_Date) = s.Season_ID
+                WHERE 
+                    s.Season_ID BETWEEN 1946 AND 2023
+                GROUP BY 
+                    t.Team_Name, s.Season_ID
+                ORDER BY
+                    s.Season_ID DESC;
+    """)
+    stats = cursor.fetchall()
+    myConnection.close()
+
+    return stats
+    
+def get_all_time_scorers():
+
+    myConnection = get_connection()
+    cursor = myConnection.cursor()
+
+    # Get Player_ID
+    cursor.execute("""
+                    SELECT p.Player_Name, SUM(psw.Points) AS Total_Points
+                    FROM PlayedSeasonWith psw
+                    JOIN Players p ON psw.Player_ID = p.Player_ID
+                    GROUP BY p.Player_Name
+                    ORDER BY Total_Points DESC
+                    LIMIT 10
+                """)
+    stats = cursor.fetchall()
+    myConnection.close()
+
+    return stats
+
+def get_biased_refs():
+
+    myConnection = get_connection()
+    cursor = myConnection.cursor()
+
+    # Get Player_ID
+    cursor.execute("""
+                    SELECT 
+                r.Referee_Name,
+                COUNT(CASE WHEN g.Home_Win = 1 THEN 1 END) AS Home_Wins_Officiated,
+                COUNT(*) AS Total_Games_Officiated,
+                (COUNT(CASE WHEN g.Home_Win = 1 THEN 1 END) * 100.0 / COUNT(*)) AS Home_Win_Percentage
+            FROM 
+                Officiates o
+            JOIN 
+                Games g ON o.Game_ID = g.Game_ID
+            JOIN 
+                Referees r ON o.Official_ID = r.Official_ID
+            GROUP BY 
+                r.Referee_Name
+            HAVING
+                COUNT(*) > 100
+            ORDER BY 
+                Home_Win_Percentage DESC
+            LIMIT 10;
+                """)
+    stats = cursor.fetchall()
+    myConnection.close()
+
+    return stats
+
+
+def get_top_champions():
+
+    myConnection = get_connection()
+    cursor = myConnection.cursor()
+
+    cursor.execute("""
+                    SELECT 
+                    s.Season_ID,
+                    t.Team_Name as Champion,
+                    p.Player_Name as HighestScoringPlayer,
+                    psw.Points as HighestScoringPlayerPoints
+                FROM Season s
+                JOIN Team t ON s.Winner_ID = t.Team_ID
+                JOIN PlayedSeasonWith psw ON s.Season_ID = psw.Season_ID AND s.Winner_ID = psw.Team_ID
+                JOIN  Players p ON psw.Player_ID = p.Player_ID
+                WHERE 
+                    (psw.Season_ID, psw.Team_ID, psw.Points) IN (
+                        SELECT 
+                            psw.Season_ID,
+                            psw.Team_ID,
+                            MAX(psw.Points)
+                        FROM 
+                            PlayedSeasonWith psw
+                        JOIN Season s ON psw.Season_ID = s.Season_ID
+                        GROUP BY 
+                            psw.Season_ID, psw.Team_ID
+                    )
+                ORDER BY 
+                    s.Season_ID DESC;
+                   """)
+    
+    stats = cursor.fetchall()
+    myConnection.close()
+
+    return stats
+
+def get_winningest_arenas():
+    myConnection = get_connection()
+    cursor = myConnection.cursor()
+
+    cursor.execute("""
+            SELECT 
+            a.Arena_Name,
+            a.Capacity,
+            COUNT(CASE WHEN g.Home_Win = 1 THEN 1 END) AS Home_Wins,
+            COUNT(*) AS Total_Games_Hosted,
+            (COUNT(CASE WHEN g.Home_Win = 1 THEN 1 END) * 100.0 / COUNT(*)) AS Home_Win_Percentage
+        FROM 
+            Games g
+        JOIN 
+            Arenas a ON g.Arena_ID = a.Arena_ID
+        GROUP BY 
+            a.Arena_Name, a.Capacity
+        ORDER BY 
+            Home_Win_Percentage DESC;""")
+    
+    stats = cursor.fetchall()
+    myConnection.close()
+
+    return stats
+
