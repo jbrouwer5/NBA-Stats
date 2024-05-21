@@ -77,11 +77,11 @@ class PlayerStatsFrame(tk.Frame):
             if stats:
                 self.results.delete('1.0', tk.END)
                 self.results.insert(tk.END, f'Games Played: {stats[0]}\n')
-                self.results.insert(tk.END, f'Points: {stats[1]}\n')
-                self.results.insert(tk.END, f'Rebounds: {stats[2]}\n')
-                self.results.insert(tk.END, f'Assists: {stats[3]}\n')
-                self.results.insert(tk.END, f'Steals: {stats[4]}\n')
-                self.results.insert(tk.END, f'Blocks: {stats[5]}\n')
+                self.results.insert(tk.END, f'Points Per Game: {stats[1]}\n')
+                self.results.insert(tk.END, f'Rebounds Per Game: {stats[2]}\n')
+                self.results.insert(tk.END, f'Assists Per Game: {stats[3]}\n')
+                self.results.insert(tk.END, f'Steals Per Game: {stats[4]}\n')
+                self.results.insert(tk.END, f'Blocks Per Game: {stats[5]}\n')
             else:
                 self.results.delete('1.0', tk.END)
                 self.results.insert(tk.END, 'No stats available for this player and season.')
@@ -124,6 +124,11 @@ class PlayerCareerStatsFrame(tk.Frame):
                 self.results.insert(tk.END, f'Total Assists: {career_stats[3]}\n')
                 self.results.insert(tk.END, f'Total Steals: {career_stats[4]}\n')
                 self.results.insert(tk.END, f'Total Blocks: {career_stats[5]}\n')
+                self.results.insert(tk.END, f'Points Per Game: {career_stats[6]}\n')
+                self.results.insert(tk.END, f'Rebounds Per Game: {career_stats[7]}\n')
+                self.results.insert(tk.END, f'Assists Per Game: {career_stats[8]}\n')
+                self.results.insert(tk.END, f'Steals Per Game: {career_stats[9]}\n')
+                self.results.insert(tk.END, f'Blocks Per Game: {career_stats[10]}\n')
             else:
                 self.results.delete('1.0', tk.END)
                 self.results.insert(tk.END, 'No career stats available for this player.')
@@ -201,12 +206,10 @@ class TeamStatsFrame(tk.Frame):
             stats = get_team_stats(team_name, season_year)
             if stats:
                 self.results.delete('1.0', tk.END)
-                self.results.insert(tk.END, f'Games Played: {stats[0]}\n')
-                self.results.insert(tk.END, f'Total Points: {stats[1]}\n')
-                self.results.insert(tk.END, f'Points Scored Per Game: {stats[2]}\n')
-                self.results.insert(tk.END, f'Points Allowed Per Game: {stats[3]}\n')
                 self.results.insert(tk.END, f'Wins: {stats[4]}\n')
                 self.results.insert(tk.END, f'Losses: {stats[5]}\n')
+                self.results.insert(tk.END, f'Points Scored Per Game: {stats[2]}\n')
+                self.results.insert(tk.END, f'Points Allowed Per Game: {stats[3]}\n')
             else:
                 self.results.delete('1.0', tk.END)
                 self.results.insert(tk.END, 'No stats available for this team and season.')

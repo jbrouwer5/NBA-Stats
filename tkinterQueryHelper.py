@@ -95,6 +95,44 @@ def get_player_stats(player_name, season_year):
 
     return stats
 
+# Function to fetch player stats
+def get_player_stats(player_name, season_year):
+    myConnection = get_connection()
+    cursor = myConnection.cursor()
+    
+    # Get Player_ID
+    cursor.execute("SELECT Player_ID FROM Players WHERE Player_Name = %s", (player_name,))
+    player_id = cursor.fetchone()[0]
+    
+    # Assuming the Season table has a column to identify the start year of the season
+    cursor.execute("SELECT Season_ID FROM Season WHERE Season_ID = %s", (season_year,))
+    season_id = cursor.fetchone()[0]
+    
+    # Get Player Stats from PlayedSeasonWith table
+    cursor.execute("""
+        SELECT Games_Played, Points, Rebounds, Assists, Steals, Blocks
+        FROM PlayedSeasonWith
+        WHERE Player_ID = %s AND Season_ID = %s
+    """, (player_id, season_id))
+    stats = cursor.fetchone()
+    
+    myConnection.close()
+    
+    if stats is None: 
+        return stats 
+    
+    # Calculate per-game statistics
+    games_played = stats[0]
+    ppg = round(stats[1] / games_played, 1) if games_played else 0
+    rpg = round(stats[2] / games_played, 1) if games_played else 0
+    apg = round(stats[3] / games_played, 1) if games_played else 0
+    spg = round(stats[4] / games_played, 1) if games_played else 0
+    bpg = round(stats[5] / games_played, 1) if games_played else 0
+    
+    return (games_played, ppg, rpg, apg, spg, bpg)
+    
+
+
 # Function to fetch teams from the database
 def get_teams():
     myConnection = get_connection()
@@ -131,12 +169,12 @@ def get_team_stats(team_name, season_year):
             AVG(CASE 
                 WHEN g.Home_Team_ID = %s THEN g.Home_Points
                 ELSE g.Away_Points
-            END), 2) AS Points_Per_Game, 
+            END), 1) AS Points_Per_Game, 
             ROUND(
             AVG(CASE 
                 WHEN g.Home_Team_ID = %s THEN g.Away_Points
                 ELSE g.Home_Points
-            END), 2) AS Points_Allowed_Per_Game,
+            END), 1) AS Points_Allowed_Per_Game,
             SUM(CASE 
                 WHEN (g.Home_Team_ID = %s AND g.Home_Win = TRUE) OR (g.Away_Team_ID = %s AND g.Home_Win = FALSE) THEN 1
                 ELSE 0
@@ -181,6 +219,11 @@ def get_player_career_stats(player_name):
     """, (player_id,))
     
     career_stats = cursor.fetchone()
+
+    career_stats = (career_stats[0], career_stats[1], career_stats[2], career_stats[3], career_stats[4], career_stats[5], 
+                    round(career_stats[1] / career_stats[0], 1), round(career_stats[2] / career_stats[0], 1), 
+                    round(career_stats[3] / career_stats[0], 1), round(career_stats[4] / career_stats[0], 1), 
+                    round(career_stats[5] / career_stats[0], 1))
     
     myConnection.close()
     
