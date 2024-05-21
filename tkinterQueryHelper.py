@@ -20,6 +20,31 @@ def get_players():
     
     return players
 
+# Function to fetch top scorers by points per game
+def get_top_scorers(number_players, season_year):
+    myConnection = get_connection()
+    cursor = myConnection.cursor()
+
+    # Get Season_ID
+    cursor.execute("SELECT Season_ID FROM Season WHERE Season_ID = %s", (season_year,))
+    season_id = cursor.fetchone()[0]
+
+    # Get top scorers from PlayedSeasonWith table by Points Per Game
+    cursor.execute("""
+        SELECT p.Player_Name, ROUND(psw.Points / psw.Games_Played, 2) AS Points_Per_Game
+        FROM PlayedSeasonWith psw
+        JOIN Players p ON psw.Player_ID = p.Player_ID
+        WHERE psw.Season_ID = %s
+        ORDER BY Points_Per_Game DESC
+        LIMIT %s
+    """, (season_id, number_players))
+    
+    top_scorers = cursor.fetchall()
+    
+    myConnection.close()
+
+    return top_scorers
+
 # Function to fetch player stats
 def get_player_stats(player_name, season_year):
     myConnection = get_connection()
