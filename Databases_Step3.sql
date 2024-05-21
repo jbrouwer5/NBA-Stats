@@ -14,30 +14,23 @@ CREATE TABLE Players (
 CREATE TABLE Team (
     Team_ID INT PRIMARY KEY,
     Team_Name VARCHAR(100) NOT NULL,
-    Abrreviation VARCHAR(5) NOT NULL,
+    Abbreviation VARCHAR(5) NOT NULL,
     City VARCHAR(100) NOT NULL,
     Year_Founded INT NOT NULL,
 );
 
-
-CREATE TABLE Season (
-	Season_ID INT PRIMARY KEY,
-    Season_Start DATE,
-    Season_End DATE
-);
-
-CREATE TABLE PlayerSeasonStats (
+CREATE TABLE PlayedSeasonWith (
     Player_ID INT,
-    Season_ID INT,
+    Season_ID VARCHAR(100) NOT NULL,
     Team_ID INT,
-    Jersey_Number INT NOT NULL,
+    Age INT NOT NULL,
     Games_Played INT, -- GP
-    Field_Goals_2PT INT NOT NULL, -- FGM
-    Field_Goals_3PT INT NOT NULL, -- FG3M
-    Free_Throws INT NOT NULL, -- FTM
+    Points INT NOT NULL, 
     Rebounds INT NOT NULL, -- REB
     Assists INT NOT NULL, -- AST
-    PRIMARY KEY (Player_ID, Season_ID),
+    Steals INT NOT NULL,
+    Blocks INT NOT NULL,
+    PRIMARY KEY (Player_ID, Season_ID, Team_ID),
     FOREIGN KEY (Player_ID) REFERENCES Players(Player_ID),
     FOREIGN KEY (Season_ID) REFERENCES Season(Season_ID),
     FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID)
@@ -74,28 +67,17 @@ CREATE TABLE Referees (
     Referee_Name VARCHAR(100) NOT NULL,
 );
 
-
-CREATE TABLE PlayedFor (
-    Player_ID INT,
-    Team_ID INT,
-    Play_Start INT NOT NULL,
-    Play_End INT,
-    PRIMARY KEY (Player_ID, Team_ID, Contract_Start),
-    FOREIGN KEY (Player_ID) REFERENCES Players(Player_ID),
-    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID)
-);
-
 CREATE TABLE CoachesTeam (
     Coach_ID INT,
     Team_ID INT,
     Start_Date DATE NOT NULL,
     End_Date DATE NOT NULL,
-    PRIMARY KEY (Coach_ID, Team_ID),
+    PRIMARY KEY (Coach_ID, Team_ID, Start_Date),
     FOREIGN KEY (Coach_ID) REFERENCES Coaches(Coach_ID),
     FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID)
 );
 
-CREATE TABLE CoachedIn (
+CREATE TABLE CoachedIn ( -- DONT KNOW IF WE HAVE THIS DATA
     Coach_ID INT,
     Game_ID INT,
     PRIMARY KEY (Coach_ID, Game_ID),
@@ -108,14 +90,6 @@ CREATE TABLE HomeVenue (
     Arena_ID INT,
     PRIMARY KEY (Team_ID, Arena_ID),
     FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID),
-    FOREIGN KEY (Arena_ID) REFERENCES Arenas(Arena_ID)
-);
-
-CREATE TABLE TakesPlaceIn (
-    Game_ID INT,
-    Arena_ID INT,
-    PRIMARY KEY (Game_ID, Arena_ID),
-    FOREIGN KEY (Game_ID) REFERENCES Games(Game_ID),
     FOREIGN KEY (Arena_ID) REFERENCES Arenas(Arena_ID)
 );
 
