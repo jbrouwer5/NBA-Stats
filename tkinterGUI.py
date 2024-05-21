@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, Text
-from tkinterQueryHelper import get_players, get_player_stats, get_teams, get_team_stats, get_top_scorers, get_player_teams
+from tkinter.scrolledtext import ScrolledText
+from tkinterQueryHelper import get_players, get_player_stats, get_teams, get_team_stats, get_top_scorers, get_player_teams, get_player_career_stats
 
 # Define the NBA colors
 NBA_BLUE = '#17408B'
@@ -39,6 +40,7 @@ class IntroFrame(tk.Frame):
         tk.Button(self, text='Team Stats', font=('Helvetica', 16), command=lambda: show_frame('TeamStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
         tk.Button(self, text='Top Scorers', font=('Helvetica', 16), command=lambda: show_frame('TopScorersFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
         tk.Button(self, text='Teams Played For', font=('Helvetica', 16), command=lambda: show_frame('TeamsPlayedForFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
+        tk.Button(self, text='Player Career Stats', font=('Helvetica', 16), command=lambda: show_frame('PlayerCareerStatsFrame'), bg=NBA_BLACK, fg=NBA_BLUE).pack(pady=10)
 
 # Define the Player Stats Frame with autocomplete combobox
 class PlayerStatsFrame(tk.Frame):
@@ -86,6 +88,48 @@ class PlayerStatsFrame(tk.Frame):
         else:
             self.results.delete('1.0', tk.END)
             self.results.insert(tk.END, 'Please select both a player and a season.')
+
+# Define the Player Career Stats Frame
+class PlayerCareerStatsFrame(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg=NBA_BLUE)
+        tk.Label(self, text='Player Career Stats', font=('Helvetica', 20), fg=NBA_WHITE, bg=NBA_BLUE).pack(pady=10)
+        
+        ttk.Label(self, text='Select Player:', background=NBA_BLUE, foreground=NBA_WHITE).pack()
+        self.player_combo = AutocompleteCombobox(self)
+        self.player_combo.pack()
+        
+        tk.Button(self, text='Show Career Stats', command=self.show_career_stats, bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
+        tk.Button(self, text='Back', command=lambda: show_frame('IntroFrame'), bg=NBA_RED, fg=NBA_WHITE).pack(pady=10)
+        
+        self.results = ScrolledText(self, height=10, width=60)
+        self.results.pack(pady=10)
+        
+        self.populate_players()
+
+    def populate_players(self):
+        players = get_players()
+        self.player_combo.set_completion_list(players)
+
+    def show_career_stats(self):
+        player_name = self.player_combo.get()
+        
+        if player_name:
+            career_stats = get_player_career_stats(player_name)
+            if career_stats:
+                self.results.delete('1.0', tk.END)
+                self.results.insert(tk.END, f'Total Games Played: {career_stats[0]}\n')
+                self.results.insert(tk.END, f'Total Points: {career_stats[1]}\n')
+                self.results.insert(tk.END, f'Total Rebounds: {career_stats[2]}\n')
+                self.results.insert(tk.END, f'Total Assists: {career_stats[3]}\n')
+                self.results.insert(tk.END, f'Total Steals: {career_stats[4]}\n')
+                self.results.insert(tk.END, f'Total Blocks: {career_stats[5]}\n')
+            else:
+                self.results.delete('1.0', tk.END)
+                self.results.insert(tk.END, 'No career stats available for this player.')
+        else:
+            self.results.delete('1.0', tk.END)
+            self.results.insert(tk.END, 'Please select a player.')
 
 class AutocompleteCombobox(ttk.Combobox):
     def set_completion_list(self, completion_list):
@@ -251,7 +295,7 @@ class TeamsPlayedForFrame(tk.Frame):
             self.results.insert(tk.END, 'Please select a player.')
 
 # Add the frames to the container
-for F in (IntroFrame, PlayerStatsFrame, TeamStatsFrame, TopScorersFrame, TeamsPlayedForFrame):
+for F in (IntroFrame, PlayerStatsFrame, TeamStatsFrame, TopScorersFrame, TeamsPlayedForFrame, PlayerCareerStatsFrame):
     frame = F(container)
     frames[F.__name__] = frame
     frame.grid(row=0, column=0, sticky='nsew')

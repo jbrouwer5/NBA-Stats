@@ -158,3 +158,30 @@ def get_team_stats(team_name, season_year):
 
     return stats
 
+# Function to fetch a player's career stats
+def get_player_career_stats(player_name):
+    myConnection = get_connection()
+    cursor = myConnection.cursor()
+    
+    # Get Player_ID
+    cursor.execute("SELECT Player_ID FROM Players WHERE Player_Name = %s", (player_name,))
+    player_id = cursor.fetchone()[0]
+    
+    # Get Player Career Stats from PlayedSeasonWith table
+    cursor.execute("""
+        SELECT 
+            SUM(Games_Played) AS Total_Games_Played,
+            SUM(Points) AS Total_Points,
+            SUM(Rebounds) AS Total_Rebounds,
+            SUM(Assists) AS Total_Assists,
+            SUM(Steals) AS Total_Steals,
+            SUM(Blocks) AS Total_Blocks
+        FROM PlayedSeasonWith
+        WHERE Player_ID = %s
+    """, (player_id,))
+    
+    career_stats = cursor.fetchone()
+    
+    myConnection.close()
+    
+    return career_stats
